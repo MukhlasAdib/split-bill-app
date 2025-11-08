@@ -1,9 +1,10 @@
 from enum import Enum
+from typing import Type
 
 from modules.data import session_data
-from modules.data.base import AIModel
 from modules.utils import SettingsError
 
+from .base import AIModel
 from .donut import DonutModel
 from .gemini import GeminiModel
 
@@ -13,7 +14,10 @@ class ModelNames(Enum):
     DONUT = "Donut"
 
 
-MODELS_LOADER = {ModelNames.GEMINI: GeminiModel, ModelNames.DONUT: DonutModel}
+MODELS_LOADER: dict[ModelNames, Type[AIModel]] = {
+    ModelNames.GEMINI: GeminiModel,
+    ModelNames.DONUT: DonutModel,
+}
 
 
 def _load_model() -> AIModel:

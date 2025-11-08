@@ -4,7 +4,7 @@ import streamlit as st
 from PIL import Image
 
 from modules.data import session_data
-from modules.data.structs import ReceiptData
+from modules.data.receipt_data import ReceiptData
 from modules.utils import format_number_to_currency
 
 IMAGE_DISPLAY_HEIGHT = 480

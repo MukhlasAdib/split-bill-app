@@ -1,7 +1,7 @@
 import streamlit as st
 
 from modules.data import session_data
-from modules.data.structs import (
+from modules.data.assignment_data import (
     AssignedItemData,
     GroupData,
     ParticipantData,
@@ -63,7 +63,7 @@ def participant_data_view(participant: ParticipantData, manager: SplitManager) -
 def participant_detail_view(
     participant: ParticipantData, manager: SplitManager
 ) -> None:
-    current_items = manager.get_participant_items_list(participant.id)
+    current_items = manager.get_participant_items_assignment_list(participant.id)
     items_to_delete = []
     for idx, item in enumerate(current_items):
         is_del = added_item_view(
@@ -72,7 +72,7 @@ def participant_detail_view(
         if is_del:
             items_to_delete.append(idx)
     if len(items_to_delete) > 0:
-        manager.remove_items(participant.id, items_to_delete)
+        manager.remove_items_assignment(participant.id, items_to_delete)
         st.rerun()
     new_item_selection_view(participant, manager)
 
@@ -164,7 +164,7 @@ def new_item_selection_view(
             icon=":material/add:",
         )
     if add_item and selected_item is not None:
-        manager.add_item(participant.id, selected_item)
+        manager.add_item_assignment(participant.id, selected_item)
         st.rerun()
 
     return True

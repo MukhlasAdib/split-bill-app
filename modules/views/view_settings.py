@@ -62,7 +62,7 @@ def model_selection_view(settings: SettingsData) -> SettingsData:
 
 
 @st.dialog("Settings")
-def settings_view(error_msg: str | None = None) -> None:
+def controller(error_msg: str | None = None) -> None:
     if error_msg is not None:
         st.error(error_msg)
     settings = SettingsData()

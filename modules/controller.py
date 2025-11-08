@@ -1,27 +1,48 @@
+"""
+Main application controller that control the whole app
+"""
+
 import functools
 import time
 
 import streamlit as st
 
-from modules.data import session_data
-from modules.data.structs import ReportData
-from modules.utils import SettingsError
-from modules.views import view_2_assign_participants, view_3_report
-from modules.views.view_settings import settings_view
-
+from .data import session_data
+from .data.report_data import ReportData
 from .models.loader import get_model
-from .views import view_1_receipt_upload
+from .utils import SettingsError
+from .views import (
+    view_1_receipt_upload,
+    view_2_assign_participants,
+    view_3_report,
+    view_settings,
+)
 
 
 def is_receipt_uploaded() -> bool:
+    """Check whether there is a receipt that has been uploaded
+
+    Returns:
+        bool: True if has been uploaded
+    """
     return session_data.receipt_data.get() is not None
 
 
 def is_report_created() -> bool:
+    """Check whether there is a report that has been created
+
+    Returns:
+        bool: True if has been created
+    """
     return session_data.report.get() is not None
 
 
 def get_max_page() -> int:
+    """Get page numbers based on user progress.
+
+    Returns:
+        int: Page numbers
+    """
     max_page = 1
     if is_receipt_uploaded():
         max_page += 1
@@ -31,18 +52,21 @@ def get_max_page() -> int:
 
 
 def next_page() -> None:
+    """Move to the next page."""
     current_page = session_data.current_page.get()
     session_data.current_page.set(min(get_max_page(), current_page + 1))
     st.rerun()
 
 
 def prev_page() -> None:
+    """Move to the previous page."""
     current_page = session_data.current_page.get()
     session_data.current_page.set(max(1, current_page - 1))
     st.rerun()
 
 
 def section_selection_view() -> None:
+    """Display of page selections."""
     current_page = session_data.current_page.get()
     page_title = {
         1: "Upload Your Bill",
@@ -90,6 +114,7 @@ def section_selection_view() -> None:
 
 
 def view_2_done_func() -> None:
+    """Callable to be call when user finished in page 2."""
     manager = session_data.split_manager.get()
     if manager is None:
         return
@@ -97,6 +122,7 @@ def view_2_done_func() -> None:
 
 
 def main_view() -> None:
+    """Main page view."""
     model = get_model()
     section_selection_view()
     current_page = session_data.current_page.get()
@@ -120,6 +146,7 @@ def main_view() -> None:
 
 
 def controller():
+    """Application main function."""
     st.title("💵 Split Your Bill")
     author_col, settings_col = st.columns([5, 5])
     with author_col:
@@ -129,11 +156,11 @@ def controller():
             label="",
             key="settings_button",
             icon=":material/settings:",
-            on_click=settings_view,
+            on_click=view_settings.controller,
             type="tertiary",
         )
 
     try:
         main_view()
     except SettingsError as err:
-        settings_view(str(err))
+        view_settings.controller(str(err))

@@ -3,8 +3,9 @@ import xmltodict
 from PIL import Image
 from transformers import AutoModelForVision2Seq, AutoProcessor
 
-from modules.data.base import AIModel
-from modules.data.structs import ItemData, ReceiptData
+from modules.data.receipt_data import ItemData, ReceiptData
+
+from .base import AIModel
 
 MODEL_NAME = "naver-clova-ix/donut-base-finetuned-cord-v2"
 

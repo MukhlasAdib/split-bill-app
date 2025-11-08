@@ -1,9 +1,13 @@
-from abc import ABC
-
-from PIL import Image
-
-from modules.data.structs import ReceiptData
+from typing import ClassVar
 
 
-class AIModel(ABC):
-    def run(self, image: Image.Image) -> ReceiptData: ...
+class IDGenerator:
+    """Unique ID generator."""
+
+    num: ClassVar[int] = 0
+
+    @classmethod
+    def get(cls) -> int:
+        """Get new ID."""
+        cls.num += 1
+        return cls.num

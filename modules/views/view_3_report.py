@@ -1,6 +1,6 @@
 import streamlit as st
 
-from modules.data.structs import ParticipantReportData, ReportData
+from modules.data.report_data import ParticipantReportData, ReportData
 from modules.utils import format_number_to_currency
 
 

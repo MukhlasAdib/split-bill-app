@@ -7,8 +7,10 @@ from langchain_core.messages import HumanMessage
 from langchain_google_genai import ChatGoogleGenerativeAI
 from PIL import Image
 
-from modules.data.structs import ItemData, ReceiptData
+from modules.data.receipt_data import ItemData, ReceiptData
 from modules.utils import AIError, SettingsError
+
+from .base import AIModel
 
 MODEL_NAME = "gemini-2.5-flash"
 
@@ -37,7 +39,7 @@ return only in JSON format
 """
 
 
-class GeminiModel:
+class GeminiModel(AIModel):
     def __init__(self) -> None:
         if "GOOGLE_API_KEY" not in os.environ or os.environ["GOOGLE_API_KEY"] == "":
             raise SettingsError(
