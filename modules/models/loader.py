@@ -10,6 +10,8 @@ from .gemini import GeminiModel
 
 
 class ModelNames(Enum):
+    """Available model names."""
+
     GEMINI = "Gemini"
     DONUT = "Donut"
 
@@ -21,6 +23,15 @@ MODELS_LOADER: dict[ModelNames, Type[AIModel]] = {
 
 
 def _load_model() -> AIModel:
+    """Load new model.
+
+    Raises:
+        SettingsError: if the settings are not configured correctly
+            and model loading failed.
+
+    Returns:
+        AIModel: loaded AI model.
+    """
     model_name = session_data.model_name.get()
     if model_name not in MODELS_LOADER:
         raise SettingsError(f"Model name is not recognized {model_name}")
@@ -28,6 +39,11 @@ def _load_model() -> AIModel:
 
 
 def get_model() -> AIModel:
+    """Get receipt reader model.
+
+    Returns:
+        AIModel: the loaded AI model
+    """
     model = session_data.model.get()
     if model is None:
         model = _load_model()

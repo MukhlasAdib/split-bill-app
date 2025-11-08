@@ -40,7 +40,10 @@ return only in JSON format
 
 
 class GeminiModel(AIModel):
+    """Receipt reader based on Gemini model API."""
+
     def __init__(self) -> None:
+        """Initialize the model."""
         if "GOOGLE_API_KEY" not in os.environ or os.environ["GOOGLE_API_KEY"] == "":
             raise SettingsError(
                 "No Google API key has been set. Please set it when using Gemini."
@@ -48,6 +51,14 @@ class GeminiModel(AIModel):
         self.llm = ChatGoogleGenerativeAI(model="gemini-2.5-flash", temperature=0.0)
 
     def run(self, image: Image.Image) -> ReceiptData:
+        """Retrieve data from the receipt.
+
+        Args:
+            image (Image.Image): the receipt photo image
+
+        Returns:
+            ReceiptData: parsed receipt data
+        """
         image_b64 = self._encode_image(image)
         message = HumanMessage(
             content=[
@@ -70,12 +81,28 @@ class GeminiModel(AIModel):
             raise AIError(f"Unable to parse Gemini response: {response}") from err
 
     def _encode_image(self, image: Image.Image) -> str:
+        """Encode image to base64 for Gemini request.
+
+        Args:
+            image (Image.Image): image data
+
+        Returns:
+            str: encoded image
+        """
         buffer = BytesIO()
         image.save(buffer, format="PNG")
         img_bytes = buffer.getvalue()
         return base64.b64encode(img_bytes).decode("utf-8")
 
     def _format_response(self, response: str) -> ReceiptData:
+        """Parse Gemini response into app receipt data.
+
+        Args:
+            response (str): Gemini response text raw
+
+        Returns:
+            ReceiptData: the parsed data
+        """
         dict_data = self._parse_response_to_dict(response)
         total = dict_data["total"]
         menus_list = dict_data["menus"]
@@ -91,5 +118,13 @@ class GeminiModel(AIModel):
         return ReceiptData(items={it.id: it for it in items}, total=float(total))
 
     def _parse_response_to_dict(self, response: str) -> dict:
+        """Parse Gemini response text to data in dictionary format.
+
+        Args:
+            response (str): raw Gemini response
+
+        Returns:
+            dict: parsed dictionary
+        """
         clean_json_str = response.replace("```json", "").replace("```", "")
         return json.loads(clean_json_str)
