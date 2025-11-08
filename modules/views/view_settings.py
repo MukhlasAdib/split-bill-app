@@ -1,5 +1,4 @@
 import streamlit as st
-from babel.core import get_global
 from babel.numbers import get_currency_name
 
 from modules.data import session_data

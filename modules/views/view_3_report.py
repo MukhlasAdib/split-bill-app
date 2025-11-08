@@ -12,7 +12,10 @@ def participant_view(participant_report: ParticipantReportData) -> None:
         with total_str_col:
             st.markdown("##### Total:")
         with total_col:
-            st.markdown(f"##### {int(participant_report.purchased_total):,d}")
+            total_str = format_number_to_currency(
+                int(participant_report.purchased_total)
+            )
+            st.markdown(f"##### {total_str}")
         st.table(participant_report.to_dataframe_display(), border="horizontal")
         subtotal_str = format_number_to_currency(participant_report.purchased_subtotal)
         st.markdown(f"###### Subtotal: {subtotal_str}")
