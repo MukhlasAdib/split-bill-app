@@ -8,6 +8,7 @@ from typing_extensions import TypeVar
 
 from modules.data.base import AIModel
 from modules.data.structs import GroupData, ReceiptData, ReportData, SplitManager
+from modules.models.loader import ModelNames
 
 T = TypeVar("T")
 V = TypeVar("V", default=None)
@@ -38,6 +39,7 @@ class SessionDataManager(Generic[T, V]):
 
 
 model = SessionDataManager[AIModel]("model")
+model_name = SessionDataManager[ModelNames, ModelNames]("model_name", ModelNames.GEMINI)
 currency = SessionDataManager[str, str]("currency", "IDR")
 image = SessionDataManager[Image.Image]("image")
 receipt_data = SessionDataManager[ReceiptData]("receipt_data")

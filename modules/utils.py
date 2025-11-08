@@ -32,3 +32,11 @@ def format_number_to_currency(val: float) -> str:
     if not locale:
         return str(val)
     return format_currency(val, currency, locale=locale, format="¤ #,##0.00")
+
+
+class AIError(Exception):
+    pass
+
+
+class SettingsError(Exception):
+    pass

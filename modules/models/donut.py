@@ -6,11 +6,13 @@ from transformers import AutoModelForVision2Seq, AutoProcessor
 from modules.data.base import AIModel
 from modules.data.structs import ItemData, ReceiptData
 
+MODEL_NAME = "naver-clova-ix/donut-base-finetuned-cord-v2"
+
 
 class DonutModel(AIModel):
-    def __init__(self, model_name: str) -> None:
-        self.processor = AutoProcessor.from_pretrained(model_name)
-        self.model = AutoModelForVision2Seq.from_pretrained(model_name)
+    def __init__(self) -> None:
+        self.processor = AutoProcessor.from_pretrained(MODEL_NAME)
+        self.model = AutoModelForVision2Seq.from_pretrained(MODEL_NAME)
 
     def run(self, image: Image.Image) -> ReceiptData:
         text_input, image_input = self._preprocess(image)
