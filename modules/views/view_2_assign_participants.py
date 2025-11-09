@@ -9,39 +9,13 @@ from modules.data.assignment_data import (
 )
 
 
-def warning_icon(color: str):
-    return f"""
-    <svg xmlns="http://www.w3.org/2000/svg" height="20px" viewBox="0 -960 960 960" width="20px" fill="{color}"><path d="M480-280q17 0 28.5-11.5T520-320q0-17-11.5-28.5T480-360q-17 0-28.5 11.5T440-320q0 17 11.5 28.5T480-280Zm-40-160h80v-240h-80v240Zm40 360q-83 0-156-31.5T197-197q-54-54-85.5-127T80-480q0-83 31.5-156T197-763q54-54 127-85.5T480-880q83 0 156 31.5T763-763q54 54 85.5 127T880-480q0 83-31.5 156T763-197q-54 54-127 85.5T480-80Zm0-80q134 0 227-93t93-227q0-134-93-227t-227-93q-134 0-227 93t-93 227q0 134 93 227t227 93Zm0-320Z"/></svg>
-    """
-
-
-def participant_adder_and_submit_view(group_data: GroupData, ready_next: bool) -> bool:
-    if len(group_data) == 0:
-        st.markdown("Enter a participant name here")
-    col1, col2, _, col4 = st.columns([2, 2, 4, 2])
-    with col1:
-        new_name = st.text_input(
-            "Participant name", label_visibility="collapsed", placeholder="Name"
-        )
-    with col2:
-        new_name_button = st.button(
-            label="",
-            key="new_name_button",
-            icon=":material/person_add:",
-            type="primary",
-        )
-    if new_name_button:
-        group_data.add(name=new_name)
-        st.rerun()
-
-    with col4, st.container(horizontal_alignment="right"):
-        is_submit = st.button(
-            "Submit", key="Submit", type="primary", disabled=not ready_next
-        )
-    return is_submit
-
-
 def participant_data_view(participant: ParticipantData, manager: SplitManager) -> None:
+    """Element to show a participant data.
+
+    Args:
+        participant (ParticipantData): the participant data
+        manager (SplitManager): the split assignment manager
+    """
     with st.container(border=True):
         col1, col2 = st.columns([9, 1])
         with col1:
@@ -63,6 +37,12 @@ def participant_data_view(participant: ParticipantData, manager: SplitManager) -
 def participant_detail_view(
     participant: ParticipantData, manager: SplitManager
 ) -> None:
+    """Element for user to assign items to the participant.
+
+    Args:
+        participant (ParticipantData): the participant data
+        manager (SplitManager): the split assignment manager
+    """
     current_items = manager.get_participant_items_assignment_list(participant.id)
     items_to_delete = []
     for idx, item in enumerate(current_items):
@@ -77,35 +57,20 @@ def participant_detail_view(
     new_item_selection_view(participant, manager)
 
 
-def on_item_count_change(key_name: str, item: AssignedItemData) -> None:
-    new_val = st.session_state.get(key_name)
-    if new_val is None:
-        return
-    item.set_count(new_val)
-
-
-def item_warning_sign(text: str, color: str):
-    st.markdown(
-        f"""
-        <div style="
-            color: {color};
-            padding: 0.5rem 1rem;
-            border-radius: 0.5rem;
-            height: 38px;  
-            overflow-y: auto;
-            display: flex;
-            align-items: center;
-        ">
-            <div> {warning_icon(color)} &nbsp; {text} </div>
-        </div>
-        """,
-        unsafe_allow_html=True,
-    )
-
-
 def added_item_view(
     participant: ParticipantData, item: AssignedItemData, current_assigned_total: int
 ) -> bool:
+    """Element that shows and interact with item assigned to a participant.
+
+    Args:
+        participant (ParticipantData): the participant data
+        item (AssignedItemData): the item assignment data
+        current_assigned_total (int): the already assigned number of this
+            particular item accross participants.
+
+    Returns:
+        bool: True if the user click delete of this item assignment
+    """
     del_col, name_col, num_col, detail_col = st.columns([0.5, 4, 2, 3.5])
     with del_col:
         del_item = st.button(
@@ -143,9 +108,67 @@ def added_item_view(
     return del_item
 
 
+def on_item_count_change(key_name: str, item: AssignedItemData) -> None:
+    """Callbacks to be called when user change count of the assigned item.
+
+    Args:
+        key_name (str): the count input element key name
+        item (AssignedItemData): the item assignment data
+    """
+    new_val = st.session_state.get(key_name)
+    if new_val is None:
+        return
+    item.set_count(new_val)
+
+
+def item_warning_sign(text: str, color: str) -> None:
+    """Warning notification to be shown related to item count.
+
+    Args:
+        text (str): the text to be shown
+        color (str): the color of the text
+    """
+    st.markdown(
+        f"""
+        <div style="
+            color: {color};
+            padding: 0.5rem 1rem;
+            border-radius: 0.5rem;
+            height: 38px;  
+            overflow-y: auto;
+            display: flex;
+            align-items: center;
+        ">
+            <div> {warning_icon(color)} &nbsp; {text} </div>
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
+
+
+def warning_icon(color: str) -> str:
+    """Warning icon from material.
+
+    Args:
+        color (str): the color of the text
+
+    Returns:
+        str: the warning icon as string
+    """
+    return f"""
+    <svg xmlns="http://www.w3.org/2000/svg" height="20px" viewBox="0 -960 960 960" width="20px" fill="{color}"><path d="M480-280q17 0 28.5-11.5T520-320q0-17-11.5-28.5T480-360q-17 0-28.5 11.5T440-320q0 17 11.5 28.5T480-280Zm-40-160h80v-240h-80v240Zm40 360q-83 0-156-31.5T197-197q-54-54-85.5-127T80-480q0-83 31.5-156T197-763q54-54 127-85.5T480-880q83 0 156 31.5T763-763q54 54 85.5 127T880-480q0 83-31.5 156T763-197q-54 54-127 85.5T480-80Zm0-80q134 0 227-93t93-227q0-134-93-227t-227-93q-134 0-227 93t-93 227q0 134 93 227t227 93Zm0-320Z"/></svg>
+    """
+
+
 def new_item_selection_view(
     participant: ParticipantData, manager: SplitManager
-) -> bool:
+) -> None:
+    """Eelement for user to add new item assigned to participant.
+
+    Args:
+        participant (ParticipantData): the participant data
+        manager (SplitManager): the split assignment manager
+    """
     _, item_col, add_col, _ = st.columns([0.5, 4, 2, 3.5])
     with item_col:
         selected_item = st.selectbox(
@@ -167,10 +190,19 @@ def new_item_selection_view(
         manager.add_item_assignment(participant.id, selected_item)
         st.rerun()
 
-    return True
-
 
 def warning_summary_view(manager: SplitManager) -> bool:
+    """Element that shows uncomplete action that user need to take.
+
+    It can be items that are not assigned yet or items that are
+    over-assigned
+
+    Args:
+        manager (SplitManager): the split assignment manager
+
+    Returns:
+        bool: True if all items are assigned well, False otherwise
+    """
     items = manager.get_all_items()
     unassigned_list = []
     over_list = []
@@ -196,7 +228,49 @@ def warning_summary_view(manager: SplitManager) -> bool:
     return check_ok
 
 
+def participant_adder_and_submit_view(group_data: GroupData, ready_next: bool) -> bool:
+    """Eelement to add participant and submit final assignments button.
+
+    Args:
+        group_data (GroupData): participants group data
+        ready_next (bool): whether the user has completed all assignments
+            and should be able to submit the assignments
+
+    Returns:
+        bool: True if the submit button is pressed
+    """
+    if len(group_data) == 0:
+        st.markdown("Enter a participant name here")
+    col1, col2, _, col4 = st.columns([2, 2, 4, 2])
+    with col1:
+        new_name = st.text_input(
+            "Participant name", label_visibility="collapsed", placeholder="Name"
+        )
+    with col2:
+        new_name_button = st.button(
+            label="",
+            key="new_name_button",
+            icon=":material/person_add:",
+            type="primary",
+        )
+    if new_name_button:
+        group_data.add(name=new_name)
+        st.rerun()
+
+    with col4, st.container(horizontal_alignment="right"):
+        is_submit = st.button(
+            "Submit", key="Submit", type="primary", disabled=not ready_next
+        )
+    return is_submit
+
+
 def controller() -> bool:
+    """Main controller of page 2, items assignment
+
+    Returns:
+        bool: True if user has completed all required actions in
+        this page
+    """
     manager = session_data.split_manager.get()
     if manager is None:
         receipt = session_data.receipt_data.get()

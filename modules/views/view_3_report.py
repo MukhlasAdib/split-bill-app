@@ -5,6 +5,12 @@ from modules.utils import format_number_to_currency
 
 
 def participant_view(participant_report: ParticipantReportData) -> None:
+    """Element to show report of a participant.
+
+    Args:
+        participant_report (ParticipantReportData): the participant
+            report data
+    """
     with st.container(border=True):
         name_col, total_str_col, total_col = st.columns([7, 1, 2])
         with name_col:
@@ -23,10 +29,17 @@ def participant_view(participant_report: ParticipantReportData) -> None:
         st.markdown(f"###### Others\*: {total_str}")
 
 
-def controller(report: ReportData | None) -> None:
+def controller(report: ReportData | None) -> bool:
+    """Main controller of page 3, report view.
+
+    Returns:
+        bool: always False, to prevent action to go to
+        next page in main controller
+    """
     if report is None:
         st.error("Please submit assignment first!")
-        return
+        return False
     for participant_report in report.participants_reports:
         participant_view(participant_report)
     st.markdown("*\*tax, services, discount, etc.*")
+    return False

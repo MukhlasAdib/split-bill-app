@@ -11,6 +11,11 @@ IMAGE_DISPLAY_HEIGHT = 480
 
 
 def get_items_table_columns_config() -> dict:
+    """Get the columns display config for receipt data table.
+
+    Returns:
+        dict: streamlit columns config
+    """
     return {
         "name": "Name",
         "count": "Item count",
@@ -22,6 +27,15 @@ def get_items_table_columns_config() -> dict:
 
 
 def resize_to_height(image: Image.Image, target_height: int) -> Image.Image:
+    """Resize image to a specific height.
+
+    Args:
+        image (Image.Image): image to resize
+        target_height (int): desired image height in pixels
+
+    Returns:
+        Image.Image: resized image
+    """
     width, height = image.size
     aspect_ratio = width / height
     new_width = int(target_height * aspect_ratio)
@@ -30,6 +44,12 @@ def resize_to_height(image: Image.Image, target_height: int) -> Image.Image:
 
 
 def image_input_view() -> Image.Image | None:
+    """Element for user to upload image.
+
+    Returns:
+        Image.Image | None: uploaded image, None if
+            no image has been uploaded
+    """
     uploaded_file = st.file_uploader(
         "Choose an image...",
         type=["jpg", "jpeg", "png"],
@@ -42,12 +62,33 @@ def image_input_view() -> Image.Image | None:
     return image
 
 
-def image_preview_view(image: Image.Image) -> None:
-    st.image(resize_to_height(image, IMAGE_DISPLAY_HEIGHT), width="stretch")
+@st.dialog("Reading your receipt...")
+def read_receipt_view(
+    receipt_reader: Callable[[Image.Image], ReceiptData], image: Image.Image
+) -> None:
+    """Pop-up when AI reading the receipt.
+
+    Args:
+        receipt_reader (Callable[[Image.Image], ReceiptData]): the callable
+            that will trigger the AI to run inference on the image
+        image (Image.Image): uploaded image by user
+    """
+    _, col2, _ = st.columns([4.75, 0.5, 4.75])
+    with col2:
+        with st.spinner(""):
+            receipt = receipt_reader(image)
+            session_data.view1_model_result.set(receipt)
+            st.rerun()
 
 
 @st.dialog("Confirm Data")
 def receipt_read_confirmation_view(receipt: ReceiptData) -> None:
+    """Pop-up window for user to confirm AI read results.
+
+    Args:
+        receipt (ReceiptData): the receipt data read by the AI
+    """
+    # confirm items data
     st.markdown("### Are these data correct?")
     st.markdown("You can edit the data")
     edited_data = st.data_editor(
@@ -59,6 +100,7 @@ def receipt_read_confirmation_view(receipt: ReceiptData) -> None:
     subtotal_str = format_number_to_currency(edited_data["total_price"].sum())
     st.markdown(f"Subtotal: {subtotal_str}")
 
+    # confirm total bill
     st.markdown("### Is this the correct total bill?")
     st.markdown("(incl. tax, services, discount, etc.)")
     edited_total = st.number_input(
@@ -67,6 +109,7 @@ def receipt_read_confirmation_view(receipt: ReceiptData) -> None:
     total_str = format_number_to_currency(edited_total)
     st.markdown(f"Total: {total_str}")
 
+    # user approval action
     confirmation_pressed = st.button("Confirm", key="confirm_button")
     if confirmation_pressed:
         session_data.view1_auto_next_page.set(True)
@@ -76,7 +119,17 @@ def receipt_read_confirmation_view(receipt: ReceiptData) -> None:
         st.rerun()
 
 
+def image_preview_view(image: Image.Image) -> None:
+    """Eelemnt to preview the uploaded image.
+
+    Args:
+        image (Image.Image): the uploaded image
+    """
+    st.image(resize_to_height(image, IMAGE_DISPLAY_HEIGHT), width="stretch")
+
+
 def final_receipt_view() -> None:
+    """Element to show the confirmed receipt data."""
     receipt = session_data.receipt_data.get()
     if receipt is None:
         st.warning("No data has been read yet...")
@@ -90,19 +143,17 @@ def final_receipt_view() -> None:
     st.markdown(f"##### Total: {format_number_to_currency(receipt.total)}")
 
 
-@st.dialog("Reading your receipt...")
-def read_receipt_view(
-    receipt_reader: Callable[[Image.Image], ReceiptData], image: Image.Image
-) -> None:
-    _, col2, _ = st.columns([4.75, 0.5, 4.75])
-    with col2:
-        with st.spinner(""):
-            receipt = receipt_reader(image)
-            session_data.view1_model_result.set(receipt)
-            st.rerun()
-
-
 def controller(receipt_reader: Callable[[Image.Image], ReceiptData]) -> bool:
+    """Main controller of the page 1, receipt upload.
+
+    Args:
+        receipt_reader (Callable[[Image.Image], ReceiptData]): the callable
+            that will trigger the AI to run inference on the image
+
+    Returns:
+        bool: True if user has completed all required actions in
+        this page
+    """
     image = image_input_view()
     if image is None:
         return False

@@ -11,6 +11,8 @@ from modules.utils import CURRENCY_LIST
 
 @dataclass
 class SettingsData:
+    """Class that contains all settings data."""
+
     currency: str = field(default_factory=session_data.currency.get)
     model_name: ModelNames = field(default_factory=session_data.model_name.get)
     gemini_api_key: str | None = field(
@@ -18,15 +20,24 @@ class SettingsData:
     )
 
     def apply(self) -> None:
+        """Apply the settings stored in this object."""
         session_data.currency.set(self.currency)
         if self.model_name != session_data.model_name.get():
             session_data.model.reset()
         session_data.model_name.set(self.model_name)
-        if self.gemini_api_key is not None:
+        if self.gemini_api_key is not None and self.gemini_api_key != "":
             os.environ["GOOGLE_API_KEY"] = self.gemini_api_key
 
 
 def currency_settings_view(settings: SettingsData) -> SettingsData:
+    """Eelement for currency settings input.
+
+    Args:
+        settings (SettingsData): the current settings data
+
+    Returns:
+        SettingsData: the updated settings data
+    """
     currencies = list(CURRENCY_LIST.keys())
     current_idx = (
         currencies.index(settings.currency) if settings.currency in currencies else 0
@@ -42,6 +53,14 @@ def currency_settings_view(settings: SettingsData) -> SettingsData:
 
 
 def model_selection_view(settings: SettingsData) -> SettingsData:
+    """Eelement for model selection settings input.
+
+    Args:
+        settings (SettingsData): the current settings data
+
+    Returns:
+        SettingsData: the updated settings data
+    """
     models_options = list(ModelNames)
     current_idx = (
         models_options.index(settings.model_name)
@@ -63,6 +82,13 @@ def model_selection_view(settings: SettingsData) -> SettingsData:
 
 @st.dialog("Settings")
 def controller(error_msg: str | None = None) -> None:
+    """Controller of the settings page pop-up.
+
+    Args:
+        error_msg (str | None, optional): Error message to
+            be shown, supposed to be explanation whether there
+            is any misconfigured settings, if any. Defaults to None.
+    """
     if error_msg is not None:
         st.error(error_msg)
     settings = SettingsData()
