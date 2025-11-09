@@ -1,7 +1,8 @@
 from abc import ABC, abstractmethod
 
-from data.receipt_data import ReceiptData
 from PIL import Image
+
+from modules.data.receipt_data import ReceiptData
 
 
 class AIModel(ABC):

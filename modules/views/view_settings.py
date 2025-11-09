@@ -74,7 +74,9 @@ def model_selection_view(settings: SettingsData) -> SettingsData:
         index=current_idx,
     )
     if selected_model == ModelNames.GEMINI:
-        google_key = st.text_input("Google API Key", type="password")
+        google_key = st.text_input(
+            "Google API Key", type="password", value=settings.gemini_api_key
+        )
         settings.gemini_api_key = google_key
     settings.model_name = selected_model
     return settings
