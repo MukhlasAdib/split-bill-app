@@ -2,6 +2,10 @@
 
 This repository contains AI-based application for splitting-bill, written on python (streamlit) and can be run on your local computer. 
 
+Live version can be found here
+
+https://mukhlas-splitbill.streamlit.app/
+
 ## Features
 
 With this application, you can upload a photo of your receipt. The AI will read the receipt and show you the data.
